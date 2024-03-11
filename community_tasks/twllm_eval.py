@@ -28,12 +28,6 @@ This file generally create just a TASKS_TABLE and TASKS_GROUPS which are then im
 
 Author:
 """
-import numpy as np
-from aenum import extend_enum
-
-from lighteval.metrics import Metrics
-from lighteval.metrics.metrics import SampleLevelMetric
-from lighteval.metrics.utils import MetricCategory, MetricUseCase
 from lighteval.tasks.lighteval_task import LightevalTaskConfig
 from lighteval.tasks.requests import Doc
 from lighteval.tasks.tasks_prompt_formatting import LETTER_INDICES, bbh
@@ -92,6 +86,7 @@ class CustomSubsetTask(LightevalTaskConfig):
             stop_sequence=["\n"],
             output_regex=None,
             frozen=False,
+            trust_remote_code=True,
         )
 
 
