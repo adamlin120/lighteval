@@ -36,7 +36,36 @@ from lighteval.tasks.tasks_prompt_formatting import LETTER_INDICES, bbh
 # EVAL WITH NO SUBSET ##
 # This is how you create a simple tasks (like hellaswag) which has one single subset
 # attached to it, and one evaluation possible.
-# TODO: table and drcd
+drcd = LightevalTaskConfig(
+    name="tc-eval-v2:drcd",
+    prompt_function="drcd_prompt_fn",  # must be defined in the file or imported from src/lighteval/tasks/tasks_prompt_formatting.py
+    suite=["community", "tc-eval-v2"],
+    hf_repo="MediaTek-Research/TCEval-v2",
+    hf_subset="drcd",
+    hf_avail_splits=["test", "dev"],
+    evaluation_splits=["test"],
+    generation_size=50,
+    metric=["prefix_exact_match","prefix_quasi_exact_match"],
+    stop_sequence=["</s>", "\n", "\n\n"],
+)
+
+
+def drcd_prompt_fn(line, task_name: str = None):
+    """
+    line has three item
+    paragraph: string
+    question: string
+    references: list of string
+    """
+    query = f"###\n文章: {line['paragraph']}\n\n問題:\n{line['question']}\n\n答案:\n"
+    return Doc(
+        task_name=task_name,
+        query=query,
+        gold_index=0,
+        choices=[line["references"]],
+        specific={"text": line["paragraph"]},
+    )
+
 task = LightevalTaskConfig(
     name="tc-eval-v2:penguin_table",
     prompt_function="tceval_bbh_penguins_in_a_table",  # must be defined in the file or imported from src/lighteval/tasks/tasks_prompt_formatting.py
@@ -51,9 +80,27 @@ task = LightevalTaskConfig(
 )
 
 def tceval_bbh_penguins_in_a_table(line, task_name: str = None):
-    instruction = "回答有關企鵝及其屬性的表格的問題。\n\n"
-    choices = [f"({c})" for c in LETTER_INDICES[:5]]
-    return bbh(line, instruction, choices, task_name)
+    query = line["question"] + "\n"
+    choices = [
+        line['A'],
+        line['B'],
+        line['C'],
+        line['D'],
+        line['E'],
+    ]
+    query += "".join([f"{key}. {choice}\n" for key, choice in zip(LETTER_INDICES, choices)])
+    query += "答案:"
+
+    gold_ix = LETTER_INDICES.index(line["answer"]) if isinstance(line["answer"], str) else line["answer"]
+    "__few_shots" in line and line["__few_shots"] is True  # We are adding few shots
+
+    return Doc(
+        task_name=task_name,
+        query=query,
+        choices=[" A", " B", " C", " D", "E"],
+        gold_index=gold_ix,
+        target_for_fewshot_sorting=[" A", " B", " C", " D", "E"][gold_ix],
+    )
 
 
 # EVALS WITH SUBSET
@@ -86,7 +133,6 @@ class CustomSubsetTask(LightevalTaskConfig):
             stop_sequence=["\n"],
             output_regex=None,
             frozen=False,
-            trust_remote_code=True,
         )
 
 
@@ -119,8 +165,7 @@ def tmmluplus_harness(line, task_name: str = None):
 
 # STORE YOUR EVALS
 SUBSET_TASKS = [CustomSubsetTask(name=f"tc-eval-v2:{subset}", hf_subset=subset) for subset in SAMPLE_SUBSETS]
-# _TASKS = SUBSET_TASKS + [task]
-_TASKS = SUBSET_TASKS 
+_TASKS = SUBSET_TASKS + [task, drcd]
 
 
 # MODULE LOGIC
@@ -129,5 +174,6 @@ _TASKS = SUBSET_TASKS
 TASKS_TABLE = [task.as_dict() for task in _TASKS]
 
 if __name__ == "__main__":
-    print(t["name"] for t in TASKS_TABLE)
+    print([t["name"] for t in TASKS_TABLE])
     print(len(TASKS_TABLE))
+    print(TASKS_TABLE)
