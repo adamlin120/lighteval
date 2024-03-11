@@ -46,7 +46,7 @@ drcd = LightevalTaskConfig(
     evaluation_splits=["test"],
     generation_size=50,
     metric=["prefix_exact_match","prefix_quasi_exact_match"],
-    stop_sequence=["</s>", "\n", "\n\n"],
+    stop_sequence=["\n", "\n\n"],
 )
 
 
@@ -62,7 +62,7 @@ def drcd_prompt_fn(line, task_name: str = None):
         task_name=task_name,
         query=query,
         gold_index=0,
-        choices=[line["references"]],
+        choices=line["references"],
         specific={"text": line["paragraph"]},
     )
 
@@ -76,7 +76,7 @@ task = LightevalTaskConfig(
     hf_avail_splits=["test", "dev"],
     evaluation_splits=["test"],
     generation_size=20,
-    metric=["exact_match","quasi_exact_match","prefix_exact_match","prefix_quasi_exact_match","perfect_exact_match"],
+    metric=["loglikelihood_acc"],
     stop_sequence=["</s>", "Q:", "\n\n"],
 )
 

@@ -1,6 +1,6 @@
-# DRCD TODO
+# DRCD
 community|tc-eval-v2:drcd|0|0
-# Table TODO
+# Table
 community|tc-eval-v2:penguin_table|0|0
 # MMLU
 community|tc-eval-v2:tmmluplus-accounting|5|0
