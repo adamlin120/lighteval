@@ -66,6 +66,7 @@ def drcd_prompt_fn(line, task_name: str = None):
         specific={"text": line["paragraph"]},
     )
 
+# TODO: check for low performance
 task = LightevalTaskConfig(
     name="tc-eval-v2:penguin_table",
     prompt_function="tceval_bbh_penguins_in_a_table",  # must be defined in the file or imported from src/lighteval/tasks/tasks_prompt_formatting.py
