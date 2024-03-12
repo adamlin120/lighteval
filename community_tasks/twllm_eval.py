@@ -37,7 +37,7 @@ from lighteval.tasks.tasks_prompt_formatting import LETTER_INDICES, bbh
 # This is how you create a simple tasks (like hellaswag) which has one single subset
 # attached to it, and one evaluation possible.
 drcd = LightevalTaskConfig(
-    name="tc-eval-v2:drcd",
+    name="drcd",
     prompt_function="drcd_prompt_fn",  # must be defined in the file or imported from src/lighteval/tasks/tasks_prompt_formatting.py
     suite=["community", "tc-eval-v2"],
     hf_repo="MediaTek-Research/TCEval-v2",
@@ -68,7 +68,7 @@ def drcd_prompt_fn(line, task_name: str = None):
 
 # TODO: check for low performance
 task = LightevalTaskConfig(
-    name="tc-eval-v2:penguin_table",
+    name="penguin_table",
     prompt_function="tceval_bbh_penguins_in_a_table",  # must be defined in the file or imported from src/lighteval/tasks/tasks_prompt_formatting.py
     suite=["community", "tc-eval-v2"],
     hf_repo="MediaTek-Research/TCEval-v2",
@@ -165,7 +165,7 @@ def tmmluplus_harness(line, task_name: str = None):
 
 
 # STORE YOUR EVALS
-SUBSET_TASKS = [CustomSubsetTask(name=f"tc-eval-v2:{subset}", hf_subset=subset) for subset in SAMPLE_SUBSETS]
+SUBSET_TASKS = [CustomSubsetTask(name=f"tmmluplus:{subset}", hf_subset=subset) for subset in SAMPLE_SUBSETS]
 _TASKS = SUBSET_TASKS + [task, drcd]
 
 
