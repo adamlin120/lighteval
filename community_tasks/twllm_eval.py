@@ -165,7 +165,7 @@ def tmmluplus_harness(line, task_name: str = None):
 
 
 # STORE YOUR EVALS
-SUBSET_TASKS = [CustomSubsetTask(name=f"tmmluplus:{subset.lstrip('tmmluplus-')}", hf_subset=subset) for subset in SAMPLE_SUBSETS]
+SUBSET_TASKS = [CustomSubsetTask(name=f"tmmluplus:{subset}", hf_subset=subset) for subset in SAMPLE_SUBSETS]
 _TASKS = SUBSET_TASKS + [task, drcd]
 
 
