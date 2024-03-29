@@ -3,17 +3,13 @@
 # this is a multi-node SLURM script using `accelerate` launcher
 
 #SBATCH --job-name=eval_llm
-#SBATCH --account=nvr_taiwan_rvos
-#SBATCH --partition=polar4
+#SBATCH --partition=defq
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1          # crucial - only 1 task per node
-#SBATCH --cpus-per-task=96           # EDIT this to how many cpu cores the node has
 #SBATCH --gres=gpu:8                 # EDIT this if it's not 8-gpus per node
-#SBATCH --time=04:00:00              # EDIT the desired runtime
-#SBATCH --time-min 04:00:00
 #SBATCH --exclusive
-#SBATCH --output=/home/yentlin/personal/logs/%x-%j.out
-#SBATCH --error=/home/yentlin/personal/logs/%x-%j.err
+#SBATCH --output=/mnt/home/f08944064/lighteval/logs/%x-%j.out
+#SBATCH --error=/mnt/home/f08944064/lighteval/logs/%x-%j.err
 
 echo "START TIME: $(date)"
 
@@ -35,6 +31,7 @@ LOG_PATH="main_log.txt"
 # EDIT if it's not 8-gpus per node
 GPUS_PER_NODE=8
 NNODES=$SLURM_NNODES
+NUM_PROCESSES=$(expr $NNODES \* $GPUS_PER_NODE)
 
 # define the node 0 hostname:port
 MASTER_ADDR=$(scontrol show hostnames $SLURM_JOB_NODELIST | head -n 1)
@@ -49,17 +46,20 @@ LAUNCHER="python -u -m accelerate.commands.launch \
     --main_process_ip $MASTER_ADDR \
     --main_process_port $MASTER_PORT \
     --machine_rank \$SLURM_PROCID \
+    --num_machines $NNODES \
+    --num_processes 1 \
     --role \$(hostname -s|tr -dc '0-9'): --tee 3 \
-    "
+"
 
 # EDIT the path+name of the python script and whatever args it needs
 export PROGRAM="\
     run_evals_accelerate.py \
-    --model_args "pretrained=yentinglin/Taiwan-LLM-13B-v2.0-chat" \
-    --override_batch_size 4 \
+    --model_args "pretrained=${1},trust_remote_code=True" \
+    --override_batch_size 1 \
     --output_dir="./evals/" \
     --tasks tasks_examples/twllm_eval.txt \
-    --custom_tasks "community_tasks/twllm_eval.py"
+    --custom_tasks "community_tasks/twllm_eval.py" \
+    --model_parallel
 "
 
 export CMD="$LAUNCHER $PROGRAM"
