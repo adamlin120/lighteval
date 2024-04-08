@@ -14,7 +14,7 @@
 echo "START TIME: $(date)"
 
 source ~/.bashrc
-conda activate lighteval
+source activate lighteval
 
 # auto-fail on any errors in this script
 set -eo pipefail
@@ -57,10 +57,12 @@ export PROGRAM="\
     --model_args "pretrained=${1},trust_remote_code=True" \
     --override_batch_size 1 \
     --output_dir="./evals/" \
-    --tasks tasks_examples/twllm_eval.txt \
-    --custom_tasks "community_tasks/twllm_eval.py" \
-    --model_parallel
+    --tasks tasks_examples/open_llm_leaderboard_tasks.txt \
+    --model_parallel \
+    --use_chat_template \
 "
+    #--tasks tasks_examples/twllm_eval.txt \
+    #--custom_tasks "community_tasks/twllm_eval.py" \
 
 export CMD="$LAUNCHER $PROGRAM"
 
