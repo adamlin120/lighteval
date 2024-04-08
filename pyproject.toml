@@ -30,7 +30,7 @@ where = ["src"]
 
 [project]
 name = "lighteval"
-version = "0.3.0.dev0"
+version = "0.4.0.dev0"
 authors = [
   { name="Clémentine Fourrier", email="clementine@huggingface.com" },
   { name="Nathan Habib", email="nathan.habib@huggingface.com" },
@@ -88,7 +88,8 @@ quality = ["ruff==v0.2.2","pre-commit"]
 tests = ["pytest==7.4.0"]
 dev = ["lighteval[accelerate,quality,tests]"]
 extended_tasks = [
-  "langdetect", #ifeval
+  "langdetect", # ifeval
+  "openai", # mt-bench
 ]
 
 [project.urls]
