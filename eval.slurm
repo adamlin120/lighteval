@@ -54,15 +54,16 @@ LAUNCHER="python -u -m accelerate.commands.launch \
 # EDIT the path+name of the python script and whatever args it needs
 export PROGRAM="\
     run_evals_accelerate.py \
-    --model_args "pretrained=${1},trust_remote_code=True" \
+    --model_config_path "${1}" \
     --override_batch_size 1 \
     --output_dir="./evals/" \
-    --tasks tasks_examples/open_llm_leaderboard_tasks.txt \
-    --model_parallel \
-    --use_chat_template \
+    --tasks tasks_examples/twllm_eval.txt \
+    --custom_tasks "community_tasks/twllm_eval.py" \
 "
-    #--tasks tasks_examples/twllm_eval.txt \
-    #--custom_tasks "community_tasks/twllm_eval.py" \
+    #--tasks examples/tasks/open_llm_leaderboard_tasks.txt \
+    #--model_args "pretrained=${1},trust_remote_code=True" \
+    #--model_parallel \
+    #--use_chat_template \
 
 export CMD="$LAUNCHER $PROGRAM"
 
