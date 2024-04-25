@@ -47,14 +47,14 @@ LAUNCHER="python -u -m accelerate.commands.launch \
     --main_process_port $MASTER_PORT \
     --machine_rank \$SLURM_PROCID \
     --num_machines $NNODES \
-    --num_processes 1 \
+    --num_processes 2 \
     --role \$(hostname -s|tr -dc '0-9'): --tee 3 \
 "
 
 # EDIT the path+name of the python script and whatever args it needs
 export PROGRAM="\
     run_evals_accelerate.py \
-    --model_config_path "${1}" \
+    --model_args "pretrained=${1},model_parallel=True" \
     --override_batch_size 1 \
     --output_dir="./evals/" \
     --tasks tasks_examples/twllm_eval.txt \
