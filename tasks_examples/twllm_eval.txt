@@ -1,5 +1,4 @@
-# DRCD
-community|drcd|0|0
+community|tw_truthful_qa|0|0
 # Table
 community|penguin_table|0|0
 # MMLU

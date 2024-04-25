@@ -66,7 +66,6 @@ def drcd_prompt_fn(line, task_name: str = None):
         specific={"text": line["paragraph"]},
     )
 
-# TODO: check for low performance
 task = LightevalTaskConfig(
     name="penguin_table",
     prompt_function="tceval_bbh_penguins_in_a_table",  # must be defined in the file or imported from src/lighteval/tasks/tasks_prompt_formatting.py
@@ -101,6 +100,41 @@ def tceval_bbh_penguins_in_a_table(line, task_name: str = None):
         choices=[" A", " B", " C", " D", "E"],
         gold_index=gold_ix,
         target_for_fewshot_sorting=[" A", " B", " C", " D", "E"][gold_ix],
+    )
+
+tw_truthful_qa = LightevalTaskConfig(
+    name="tw_truthful_qa",
+    prompt_function="prompt_tw_truthful_qa",  # must be defined in the file or imported from src/lighteval/tasks/tasks_prompt_formatting.py
+    suite=["community", "twllm"],
+    hf_repo="yentinglin/pegatron_benchmark_multiple_choice",
+    hf_subset="default",
+    hf_avail_splits=["test"],
+    evaluation_splits=["test"],
+    generation_size=20,
+    metric=["loglikelihood_acc"],
+    stop_sequence=["</s>", "Q:", "\n\n"],
+)
+
+def prompt_tw_truthful_qa(line, task_name: str = None):
+    query = line["question"] + "\n"
+    choices = [
+        line['A'],
+        line['B'],
+        line['C'],
+        line['D'],
+    ]
+    query += "".join([f"{key}. {choice}\n" for key, choice in zip(LETTER_INDICES, choices)])
+    query += "答案:"
+
+    gold_ix = LETTER_INDICES.index(line["answer"]) if isinstance(line["answer"], str) else line["answer"]
+    "__few_shots" in line and line["__few_shots"] is True  # We are adding few shots
+
+    return Doc(
+        task_name=task_name,
+        query=query,
+        choices=[" A", " B", " C", " D"],
+        gold_index=gold_ix,
+        target_for_fewshot_sorting=[" A", " B", " C", " D"][gold_ix],
     )
 
 
@@ -166,7 +200,7 @@ def tmmluplus_harness(line, task_name: str = None):
 
 # STORE YOUR EVALS
 SUBSET_TASKS = [CustomSubsetTask(name=f"tmmluplus:{subset}", hf_subset=subset) for subset in SAMPLE_SUBSETS]
-_TASKS = SUBSET_TASKS + [task, drcd]
+_TASKS = SUBSET_TASKS + [task, drcd, tw_truthful_qa]
 
 
 # MODULE LOGIC
